@@ -1,23 +1,18 @@
 package main
 
 import (
-	"fmt"
-	"os"
-
 	"github.com/ryanadiputraa/spendr-backend/config"
 	"github.com/ryanadiputraa/spendr-backend/internal/server"
 	"github.com/ryanadiputraa/spendr-backend/pkg/logger"
 )
 
 func main() {
-	mode := os.Args[1]
-
 	log, err := logger.NewLogger()
 	if err != nil {
 		panic(err)
 	}
 
-	config, err := config.LoadConfig("env", fmt.Sprintf("./config/.env.%v", mode))
+	config, err := config.LoadConfig("yml", "./config/config.yml")
 	if err != nil {
 		log.Fatal("load config: ", err)
 	}

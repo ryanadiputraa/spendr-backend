@@ -1,8 +1,6 @@
 package server
 
 import (
-	"fmt"
-
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/ryanadiputraa/spendr-backend/config"
@@ -29,5 +27,5 @@ func (s *Server) ServeHTTP() error {
 		AllowHeaders: []string{"Origin", "Content-Type", "Accept", "Authorization", "Access-Control-Allow-Origin"},
 		AllowMethods: []string{"OPTIONS", "GET", "POST", "PUT", "PATCH", "DELETE"},
 	}))
-	return s.web.Start(fmt.Sprintf(":%v", s.config.Port))
+	return s.web.Start(s.config.Server.Port)
 }

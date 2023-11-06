@@ -1,5 +1,5 @@
 # env
-config/.env.development
+config/config.yml
 
 # build
 bin/
