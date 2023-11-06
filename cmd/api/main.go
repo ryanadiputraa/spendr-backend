@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/ryanadiputraa/spendr-backend/config"
+	"github.com/ryanadiputraa/spendr-backend/internal/server"
 	"github.com/ryanadiputraa/spendr-backend/pkg/logger"
 )
 
@@ -16,10 +17,13 @@ func main() {
 		panic(err)
 	}
 
-	_, err = config.LoadConfig("env", fmt.Sprintf("./config/.env.%v", mode))
+	config, err := config.LoadConfig("env", fmt.Sprintf("./config/.env.%v", mode))
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("load config: ", err)
 	}
 
-	log.Info("starting")
+	server := server.NewHTTPServer(config, log)
+	if err := server.ServeHTTP(); err != nil {
+		log.Fatal("start server: ", err)
+	}
 }
