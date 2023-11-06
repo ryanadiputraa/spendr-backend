@@ -1,7 +1,10 @@
 package logger
 
 import (
+	"time"
+
 	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
 type Logger interface {
@@ -16,7 +19,10 @@ type logger struct {
 }
 
 func NewLogger() (Logger, error) {
-	log, err := zap.NewProduction(zap.AddCallerSkip(1))
+	config := zap.NewProductionConfig()
+	config.EncoderConfig.EncodeTime = zapcore.TimeEncoderOfLayout(time.RFC3339)
+
+	log, err := config.Build(zap.AddCallerSkip(1))
 	if err != nil {
 		return nil, err
 	}
