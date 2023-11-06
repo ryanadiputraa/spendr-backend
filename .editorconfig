@@ -1,0 +1,14 @@
+root = true
+
+# Unix-style newlines with a newline ending every file
+[*]
+end_of_line = lf
+insert_final_newline = true
+
+[*.go]
+charset = utf-8
+indent_size = 4
+indent_style = space
+
+[Makefile]
+indent_style = tab
