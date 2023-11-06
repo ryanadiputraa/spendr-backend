@@ -7,10 +7,18 @@ DB Diagram: https://dbdiagram.io/d/Spendr-6548afd77d8bbd6465901f12
 
 ## Development
 
-- Copy `.env.production` into `.env.development` in `config` folder then adjust your env:
+- Copy `config.example.yml` into `config.yml` in `config` folder then adjust your env:
 ```bash
 make env
 ```
+
+- Adjust db config from `congfig/config.yml` into `Makefile` (if not correct)
+
+- Use [go migrate](https://github.com/golang-migrate/migrate/tree/master/cmd/migrate) to handle db migrations:
+```bash
+migrate -path pkg/db/migration -database "postgresql://<user>:<password>@localhost:5432/spendr?sslmode=disable" -verbose up
+```
+- if you want to create migration you can use: `migrate create -ext sql -dir pkg/db/migration -seq <migration_name>`
 
 - Start server:
 ```bash
