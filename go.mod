@@ -3,7 +3,9 @@ module github.com/ryanadiputraa/spendr-backend
 go 1.21.3
 
 require (
+	github.com/jmoiron/sqlx v1.3.5
 	github.com/labstack/echo/v4 v4.11.2
+	github.com/lib/pq v1.10.9
 	github.com/spf13/viper v1.17.0
 	go.uber.org/zap v1.26.0
 )

@@ -1,6 +1,7 @@
 package server
 
 import (
+	"github.com/jmoiron/sqlx"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/ryanadiputraa/spendr-backend/config"
@@ -11,13 +12,15 @@ type Server struct {
 	config *config.Config
 	log    logger.Logger
 	web    *echo.Echo
+	db     *sqlx.DB
 }
 
-func NewHTTPServer(config *config.Config, log logger.Logger) *Server {
+func NewHTTPServer(config *config.Config, log logger.Logger, db *sqlx.DB) *Server {
 	return &Server{
 		config: config,
 		log:    log,
 		web:    echo.New(),
+		db:     db,
 	}
 }
 
