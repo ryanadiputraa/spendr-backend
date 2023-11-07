@@ -5,7 +5,9 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/ryanadiputraa/spendr-backend/config"
+	"github.com/ryanadiputraa/spendr-backend/internal/user"
 	"github.com/ryanadiputraa/spendr-backend/pkg/logger"
+	"github.com/ryanadiputraa/spendr-backend/pkg/validator"
 )
 
 type Server struct {
@@ -25,10 +27,20 @@ func NewHTTPServer(config *config.Config, log logger.Logger, db *sqlx.DB) *Serve
 }
 
 func (s *Server) ServeHTTP() error {
+	s.setupHandlers()
 	s.web.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins: []string{"*"},
 		AllowHeaders: []string{"Origin", "Content-Type", "Accept", "Authorization", "Access-Control-Allow-Origin"},
 		AllowMethods: []string{"OPTIONS", "GET", "POST", "PUT", "PATCH", "DELETE"},
 	}))
 	return s.web.Start(s.config.Server.Port)
+}
+
+func (s *Server) setupHandlers() {
+	validator := validator.NewValidator()
+	authGroup := s.web.Group("/auth")
+
+	userRepository := user.NewRepository(s.db)
+	userService := user.NewService(s.log, validator, userRepository)
+	user.NewHandler(authGroup, validator, userService)
 }

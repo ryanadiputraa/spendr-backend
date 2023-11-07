@@ -3,6 +3,7 @@ package domain
 import (
 	"errors"
 	"testing"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
@@ -14,6 +15,8 @@ const (
 )
 
 func TestNewUser(t *testing.T) {
+	now := time.Now().UTC()
+
 	user := User{
 		ID:        uuid.NewString(),
 		Email:     "john@mail.com",
@@ -22,6 +25,8 @@ func TestNewUser(t *testing.T) {
 		LastName:  "Doe",
 		Picture:   DummyImg,
 		Currency:  "idr",
+		CreatedAt: now,
+		UpdatedAt: now,
 	}
 	invalidUserCurrency := User{
 		ID:        uuid.NewString(),
@@ -31,6 +36,8 @@ func TestNewUser(t *testing.T) {
 		LastName:  "Doe",
 		Picture:   DummyImg,
 		Currency:  "won",
+		CreatedAt: now,
+		UpdatedAt: now,
 	}
 
 	cases := []struct {
@@ -77,6 +84,8 @@ func TestNewUser(t *testing.T) {
 			assert.Equal(t, c.expected.LastName, u.LastName)
 			assert.Equal(t, c.expected.Picture, u.Picture)
 			assert.Equal(t, c.expected.Currency, u.Currency)
+			assert.WithinDuration(t, user.CreatedAt, u.CreatedAt, 500*time.Millisecond)
+			assert.WithinDuration(t, user.UpdatedAt, u.UpdatedAt, 500*time.Millisecond)
 		})
 	}
 }
