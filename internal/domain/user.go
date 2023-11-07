@@ -48,12 +48,6 @@ type UserDTO struct {
 	Currency  string `json:"currency" db:"currency" validate:"required"`
 }
 
-type JWTTokens struct {
-	AccessToken  string `json:"access_token"`
-	ExpiresIn    int    `json:"expires_in"`
-	RefreshToken string `json:"refresh_token"`
-}
-
 func NewUser(id, email, password, firstName, lastName, picture, currency string) (*User, error) {
 	if _, ok := currencies[currency]; !ok && currency != "" {
 		return nil, errors.New("invalid currency")
@@ -81,10 +75,7 @@ func (u *User) HashPassword() error {
 	return nil
 }
 
-type UserService interface {
-	Signup(ctx context.Context, dto UserDTO) (*User, error)
-}
-
 type UserRepository interface {
 	AddUser(ctx context.Context, user *User) error
+	FindUserByEmail(ctx context.Context, email string) (*User, error)
 }

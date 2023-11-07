@@ -5,7 +5,9 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/ryanadiputraa/spendr-backend/config"
+	"github.com/ryanadiputraa/spendr-backend/internal/auth"
 	"github.com/ryanadiputraa/spendr-backend/internal/user"
+	"github.com/ryanadiputraa/spendr-backend/pkg/jwt"
 	"github.com/ryanadiputraa/spendr-backend/pkg/logger"
 	"github.com/ryanadiputraa/spendr-backend/pkg/validator"
 )
@@ -37,10 +39,13 @@ func (s *Server) ServeHTTP() error {
 }
 
 func (s *Server) setupHandlers() {
-	validator := validator.NewValidator()
 	authGroup := s.web.Group("/auth")
 
+	validator := validator.NewValidator()
+	jwtService := jwt.NewJWTService()
+
 	userRepository := user.NewRepository(s.db)
-	userService := user.NewService(s.log, validator, userRepository)
-	user.NewHandler(authGroup, validator, userService)
+
+	authService := auth.NewService(s.log, validator, userRepository)
+	auth.NewHandler(authGroup, s.config, s.log, validator, authService, jwtService)
 }
