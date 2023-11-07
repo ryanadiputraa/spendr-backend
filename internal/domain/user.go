@@ -75,10 +75,7 @@ func (u *User) HashPassword() error {
 	return nil
 }
 
-type UserService interface {
-	Signup(ctx context.Context, dto UserDTO) (*User, error)
-}
-
 type UserRepository interface {
 	AddUser(ctx context.Context, user *User) error
+	FindUserByEmail(ctx context.Context, email string) (*User, error)
 }

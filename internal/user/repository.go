@@ -34,6 +34,14 @@ func (r *repository) AddUser(ctx context.Context, user *domain.User) error {
 		user.CreatedAt,
 		user.UpdatedAt,
 	)
-
 	return err
+}
+
+func (r *repository) FindUserByEmail(ctx context.Context, email string) (*domain.User, error) {
+	q := `SELECT id, email, password, first_name, last_name, picture, currency FROM users WHERE email = $1`
+
+	var user domain.User
+	err := r.DB.Get(&user, q, email)
+
+	return &user, err
 }
