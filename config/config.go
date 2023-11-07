@@ -1,10 +1,15 @@
 package config
 
-import "github.com/spf13/viper"
+import (
+	"time"
+
+	"github.com/spf13/viper"
+)
 
 type Config struct {
 	*Server
 	*Postgres
+	*JWT
 }
 
 type Server struct {
@@ -18,6 +23,13 @@ type Postgres struct {
 	Password string
 	DBName   string `mapstructure:"db_name"`
 	SSLMode  string `mapstructure:"ssl_mode"`
+}
+
+type JWT struct {
+	Secret           string        `mapstructure:"secret"`
+	ExpiresIn        time.Duration `mapstructure:"expires_in"`
+	RefreshSecret    string        `mapstructure:"refresh_secret"`
+	RefreshExpiresIn time.Duration `mapstructure:"refresh_expires_in"`
 }
 
 func LoadConfig(configType, filePath string) (*Config, error) {
