@@ -13,6 +13,10 @@ type JWTTokens struct {
 	RefreshToken string `json:"refresh_token"`
 }
 
+type JWTClaims struct {
+	UserID string `json:"user_id"`
+}
+
 type AuthService interface {
 	Signup(ctx context.Context, dto UserDTO) (*User, error)
 	Signin(ctx context.Context, email, password string) (*User, error)

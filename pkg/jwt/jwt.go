@@ -9,7 +9,7 @@ import (
 )
 
 type JWTService interface {
-	GenerateJWTTokens(config *config.Config, userID string) (domain.JWTTokens, error)
+	GenerateJWTTokens(config *config.Config, claims domain.JWTClaims) (domain.JWTTokens, error)
 }
 
 type jwtService struct{}
@@ -18,9 +18,9 @@ func NewJWTService() JWTService {
 	return &jwtService{}
 }
 
-func (j *jwtService) GenerateJWTTokens(config *config.Config, userID string) (domain.JWTTokens, error) {
+func (j *jwtService) GenerateJWTTokens(config *config.Config, claims domain.JWTClaims) (domain.JWTTokens, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"user_id": userID,
+		"user_id": claims.UserID,
 		"exp":     time.Now().Add(config.ExpiresIn).Unix(),
 	})
 	tokenString, err := token.SignedString([]byte(config.Secret))
@@ -29,7 +29,7 @@ func (j *jwtService) GenerateJWTTokens(config *config.Config, userID string) (do
 	}
 
 	refreshToken := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"user_id": userID,
+		"user_id": claims.UserID,
 		"exp":     time.Now().Add(config.RefreshExpiresIn).Unix(),
 	})
 
