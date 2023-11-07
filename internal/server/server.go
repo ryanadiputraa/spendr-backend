@@ -41,12 +41,15 @@ func (s *Server) ServeHTTP() error {
 
 func (s *Server) setupHandlers() {
 	authGroup := s.web.Group("/auth")
+	userGroup := s.web.Group("/api/users")
 
 	validator := validator.NewValidator()
 	jwtService := jwt.NewJWTService()
-	_ = middleware.NewAuthMiddleware(s.config, jwtService)
+	authMiddleware := middleware.NewAuthMiddleware(s.config, jwtService)
 
 	userRepository := user.NewRepository(s.db)
+	userService := user.NewService(s.log, userRepository)
+	user.NewHandler(userGroup, userService, *authMiddleware)
 
 	authService := auth.NewService(s.log, validator, userRepository)
 	auth.NewHandler(authGroup, s.config, s.log, validator, authService, jwtService)

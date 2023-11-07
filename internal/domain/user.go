@@ -75,7 +75,12 @@ func (u *User) HashPassword() error {
 	return nil
 }
 
+type UserService interface {
+	GetUserData(ctx context.Context, userID string) (*User, error)
+}
+
 type UserRepository interface {
 	AddUser(ctx context.Context, user *User) error
+	FindUserByID(ctx context.Context, userID string) (*User, error)
 	FindUserByEmail(ctx context.Context, email string) (*User, error)
 }
