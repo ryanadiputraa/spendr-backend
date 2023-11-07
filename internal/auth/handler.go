@@ -77,7 +77,9 @@ func (h *handler) Signin() echo.HandlerFunc {
 			return c.JSON(code, resp)
 		}
 
-		tokens, err := h.jwtService.GenerateJWTTokens(h.config, user.ID)
+		tokens, err := h.jwtService.GenerateJWTTokens(h.config, domain.JWTClaims{
+			UserID: user.ID,
+		})
 		if err != nil {
 			h.log.Error("auth handler: ", err)
 			return c.JSON(http.StatusInternalServerError, map[string]any{
