@@ -1,6 +1,8 @@
 package jwt
 
 import (
+	"errors"
+	"fmt"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -10,6 +12,7 @@ import (
 
 type JWTService interface {
 	GenerateJWTTokens(config *config.Config, claims domain.JWTClaims) (domain.JWTTokens, error)
+	ParseJWTClaims(secret, tokenString string) (domain.JWTClaims, error)
 }
 
 type jwtService struct{}
@@ -43,4 +46,30 @@ func (j *jwtService) GenerateJWTTokens(config *config.Config, claims domain.JWTC
 		ExpiresIn:    int(time.Now().Add(config.ExpiresIn).Unix()),
 		RefreshToken: refreshTokenString,
 	}, nil
+}
+
+func (j *jwtService) ParseJWTClaims(secret, tokenString string) (domain.JWTClaims, error) {
+	token, err := jwt.Parse(tokenString, func(t *jwt.Token) (interface{}, error) {
+		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signin method %v", t.Header["alg"])
+		}
+		return []byte(secret), nil
+	})
+	if err != nil {
+		return domain.JWTClaims{}, err
+	}
+
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !ok || !token.Valid {
+		return domain.JWTClaims{}, err
+	}
+
+	userID, ok := claims["user_id"].(string)
+	if !ok {
+		return domain.JWTClaims{}, errors.New("fail to parse jwt claims")
+	}
+	return domain.JWTClaims{
+		UserID: userID,
+	}, nil
+
 }

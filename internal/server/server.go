@@ -3,9 +3,10 @@ package server
 import (
 	"github.com/jmoiron/sqlx"
 	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
+	_echoMiddleware "github.com/labstack/echo/v4/middleware"
 	"github.com/ryanadiputraa/spendr-backend/config"
 	"github.com/ryanadiputraa/spendr-backend/internal/auth"
+	"github.com/ryanadiputraa/spendr-backend/internal/middleware"
 	"github.com/ryanadiputraa/spendr-backend/internal/user"
 	"github.com/ryanadiputraa/spendr-backend/pkg/jwt"
 	"github.com/ryanadiputraa/spendr-backend/pkg/logger"
@@ -30,7 +31,7 @@ func NewHTTPServer(config *config.Config, log logger.Logger, db *sqlx.DB) *Serve
 
 func (s *Server) ServeHTTP() error {
 	s.setupHandlers()
-	s.web.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+	s.web.Use(_echoMiddleware.CORSWithConfig(_echoMiddleware.CORSConfig{
 		AllowOrigins: []string{"*"},
 		AllowHeaders: []string{"Origin", "Content-Type", "Accept", "Authorization", "Access-Control-Allow-Origin"},
 		AllowMethods: []string{"OPTIONS", "GET", "POST", "PUT", "PATCH", "DELETE"},
@@ -43,6 +44,7 @@ func (s *Server) setupHandlers() {
 
 	validator := validator.NewValidator()
 	jwtService := jwt.NewJWTService()
+	_ = middleware.NewAuthMiddleware(s.config, jwtService)
 
 	userRepository := user.NewRepository(s.db)
 
