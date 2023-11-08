@@ -19,7 +19,8 @@ func NewHandler(group *echo.Group, service domain.UserService, authMiddleware mi
 		service: service,
 	}
 
-	group.GET("/", h.GetUserData(), authMiddleware.ParseJWTClaims)
+	group.GET("", h.GetUserData(), authMiddleware.ParseJWTClaims)
+	group.GET("/currencies", h.ListSupportedCurrency())
 }
 
 func (h *handler) GetUserData() echo.HandlerFunc {
@@ -34,6 +35,16 @@ func (h *handler) GetUserData() echo.HandlerFunc {
 
 		return c.JSON(http.StatusOK, map[string]any{
 			"data": user,
+		})
+	}
+}
+
+func (h *handler) ListSupportedCurrency() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		currencies := h.service.ListSupportedCurrency(c.Request().Context())
+
+		return c.JSON(http.StatusOK, map[string]any{
+			"data": currencies,
 		})
 	}
 }

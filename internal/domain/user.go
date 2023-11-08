@@ -19,7 +19,7 @@ const (
 )
 
 // currencies is a map of supported currency
-var currencies map[string]bool = map[string]bool{
+var Currencies map[string]bool = map[string]bool{
 	"idr": true,
 	"usd": true,
 	"gbp": true,
@@ -41,15 +41,15 @@ type User struct {
 
 type UserDTO struct {
 	Email     string `json:"email" db:"email" validate:"required,email"`
-	Password  string `json:"password" db:"password" validate:"required"`
+	Password  string `json:"password" db:"password" validate:"required,min=8"`
 	FirstName string `json:"first_name" db:"first_name" validate:"required"`
 	LastName  string `json:"last_name" db:"last_name" validate:"required"`
-	Picture   string `json:"picture" db:"picture"`
+	Picture   string `json:"picture" db:"picture" validate:"http_url"`
 	Currency  string `json:"currency" db:"currency" validate:"required"`
 }
 
 func NewUser(id, email, password, firstName, lastName, picture, currency string) (*User, error) {
-	if _, ok := currencies[currency]; !ok && currency != "" {
+	if _, ok := Currencies[currency]; !ok && currency != "" {
 		return nil, errors.New("invalid currency")
 	}
 
@@ -77,6 +77,7 @@ func (u *User) HashPassword() error {
 
 type UserService interface {
 	GetUserData(ctx context.Context, userID string) (*User, error)
+	ListSupportedCurrency(ctx context.Context) []string
 }
 
 type UserRepository interface {
