@@ -30,7 +30,7 @@ func (s *service) GetUserData(ctx context.Context, userID string) (*domain.User,
 
 func (s *service) ListSupportedCurrency(ctx context.Context) []string {
 	currencies := make([]string, 0)
-	for c, _ := range domain.Currencies {
+	for c := range domain.Currencies {
 		currencies = append(currencies, c)
 	}
 	return currencies

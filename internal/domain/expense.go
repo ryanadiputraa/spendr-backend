@@ -39,8 +39,10 @@ func NewExpenseCategory(id, category, ico, userID string) *ExpenseCategory {
 
 type ExpenseService interface {
 	AddExpenseCategory(ctx context.Context, userID string, dto ExpenseCategoryDTO) (*ExpenseCategory, error)
+	ListExpenseCategory(ctx context.Context, userID string) ([]ExpenseCategory, error)
 }
 
 type ExpenseRepository interface {
 	AddExpenseCategory(ctx context.Context, category ExpenseCategory) error
+	ListExpenseCategory(ctx context.Context, userID string) ([]ExpenseCategory, error)
 }

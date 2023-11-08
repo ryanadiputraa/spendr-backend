@@ -2,6 +2,7 @@ package expense
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 
 	"github.com/google/uuid"
@@ -40,4 +41,16 @@ func (s *service) AddExpenseCategory(ctx context.Context, userID string, dto dom
 	}
 
 	return category, nil
+}
+
+func (s *service) ListExpenseCategory(ctx context.Context, userID string) ([]domain.ExpenseCategory, error) {
+	categories, err := s.repository.ListExpenseCategory(ctx, userID)
+	if err != nil {
+		if err != sql.ErrNoRows {
+			s.log.Error("list expense category: ", err)
+			return nil, err
+		}
+	}
+
+	return categories, err
 }

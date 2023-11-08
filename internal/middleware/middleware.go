@@ -42,7 +42,7 @@ func (m *AuthMiddleware) ParseJWTClaims(next echo.HandlerFunc) echo.HandlerFunc 
 		claims, err := m.jwt.ParseJWTClaims(m.config.JWT.Secret, tokens[1])
 		if err != nil {
 			return c.JSON(http.StatusUnauthorized, map[string]any{
-				"error": "fail to parse jwt tokens",
+				"error": "fail to parse jwt tokens, " + err.Error(),
 			})
 		}
 		c.Set("user_id", claims.UserID)

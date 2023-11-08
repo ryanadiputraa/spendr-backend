@@ -22,3 +22,12 @@ func (r *repository) AddExpenseCategory(ctx context.Context, category domain.Exp
 	_, err := r.DB.Exec(q, category.ID, category.Category, category.Ico, category.UserID)
 	return err
 }
+
+func (r *repository) ListExpenseCategory(ctx context.Context, userID string) ([]domain.ExpenseCategory, error) {
+	q := `SELECT id, category, ico FROM expense_categories WHERE user_id = $1 ORDER BY category ASC`
+
+	var categories []domain.ExpenseCategory
+	err := r.DB.Select(&categories, q, userID)
+
+	return categories, err
+}

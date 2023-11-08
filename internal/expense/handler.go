@@ -7,24 +7,22 @@ import (
 	"github.com/ryanadiputraa/spendr-backend/internal/domain"
 	"github.com/ryanadiputraa/spendr-backend/internal/middleware"
 	"github.com/ryanadiputraa/spendr-backend/pkg/httpres"
-	"github.com/ryanadiputraa/spendr-backend/pkg/logger"
 	"github.com/ryanadiputraa/spendr-backend/pkg/validator"
 )
 
 type handler struct {
-	log            logger.Logger
 	validator      validator.Validator
 	service        domain.ExpenseService
 	authMiddleware middleware.AuthMiddleware
 }
 
-func NewHandler(group *echo.Group, log logger.Logger, validator validator.Validator, service domain.ExpenseService, authMiddleware middleware.AuthMiddleware) {
+func NewHandler(group *echo.Group, validator validator.Validator, service domain.ExpenseService, authMiddleware middleware.AuthMiddleware) {
 	h := &handler{
-		log:       log,
 		validator: validator,
 		service:   service,
 	}
 
+	group.GET("/categories", h.ListExpenseCategory(), authMiddleware.ParseJWTClaims)
 	group.POST("/categories", h.AddExpenseCategory(), authMiddleware.ParseJWTClaims)
 }
 
@@ -54,6 +52,21 @@ func (h *handler) AddExpenseCategory() echo.HandlerFunc {
 
 		return c.JSON(http.StatusCreated, map[string]any{
 			"data": category,
+		})
+	}
+}
+
+func (h *handler) ListExpenseCategory() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		userID := c.Get("user_id").(string)
+		categories, err := h.service.ListExpenseCategory(c.Request().Context(), userID)
+		if err != nil {
+			code, resp := httpres.MapServiceErrHTTPResponse(err)
+			return c.JSON(code, resp)
+		}
+
+		return c.JSON(http.StatusOK, map[string]any{
+			"data": categories,
 		})
 	}
 }

@@ -58,5 +58,5 @@ func (s *Server) setupHandlers() {
 
 	expenseRepository := expense.NewRepository(s.db)
 	expenseService := expense.NewService(s.log, expenseRepository)
-	expense.NewHandler(expenseGroup, s.log, validator, expenseService, *authMiddleware)
+	expense.NewHandler(expenseGroup, validator, expenseService, *authMiddleware)
 }
