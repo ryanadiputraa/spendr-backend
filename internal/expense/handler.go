@@ -22,8 +22,39 @@ func NewHandler(group *echo.Group, validator validator.Validator, service domain
 		service:   service,
 	}
 
+	group.POST("", h.AddExpense(), authMiddleware.ParseJWTClaims)
 	group.GET("/categories", h.ListExpenseCategory(), authMiddleware.ParseJWTClaims)
 	group.POST("/categories", h.AddExpenseCategory(), authMiddleware.ParseJWTClaims)
+}
+
+func (h *handler) AddExpense() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		var dto domain.ExpenseDTO
+		if err := c.Bind(&dto); err != nil {
+			return c.JSON(http.StatusBadRequest, map[string]any{
+				"error": err.Error(),
+			})
+		}
+
+		err, errors := h.validator.Validate(dto)
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, map[string]any{
+				"error":  err.Error(),
+				"errors": errors,
+			})
+		}
+
+		userID := c.Get("user_id").(string)
+		expense, err := h.service.AddExpense(c.Request().Context(), userID, dto)
+		if err != nil {
+			code, resp := httpres.MapServiceErrHTTPResponse(err)
+			return c.JSON(code, resp)
+		}
+
+		return c.JSON(http.StatusCreated, map[string]any{
+			"data": expense,
+		})
+	}
 }
 
 func (h *handler) AddExpenseCategory() echo.HandlerFunc {

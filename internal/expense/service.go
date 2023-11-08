@@ -54,3 +54,21 @@ func (s *service) ListExpenseCategory(ctx context.Context, userID string) ([]dom
 
 	return categories, err
 }
+
+func (s *service) AddExpense(ctx context.Context, userID string, dto domain.ExpenseDTO) (*domain.Expense, error) {
+	expense, err := domain.NewExpense(
+		uuid.NewString(),
+		userID,
+		dto,
+	)
+	if err != nil {
+		return nil, domain.NewError(domain.BadRequest, err.Error())
+	}
+
+	if err := s.repository.AddExpense(ctx, *expense); err != nil {
+		s.log.Error("add expense: ", err)
+		return nil, err
+	}
+
+	return expense, nil
+}

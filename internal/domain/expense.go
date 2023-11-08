@@ -2,18 +2,19 @@ package domain
 
 import (
 	"context"
+	"errors"
 	"time"
 )
 
 type Expense struct {
 	ID         string    `json:"id" db:"id"`
 	CategoryID string    `json:"category_id" db:"category_id"`
-	UserID     string    `json:"user_id" db:"user_id"`
+	UserID     string    `json:"-" db:"user_id"`
 	Expense    string    `json:"expense" db:"expense"`
 	Amount     int       `json:"amount" db:"amount"`
 	Date       time.Time `json:"date" db:"date"`
-	CreatedAt  time.Time `json:"created_at" db:"created_at"`
-	UpdatedAt  time.Time `json:"updated_at" db:"updated_at"`
+	CreatedAt  time.Time `json:"-" db:"created_at"`
+	UpdatedAt  time.Time `json:"-" db:"updated_at"`
 }
 
 type ExpenseCategory struct {
@@ -23,9 +24,33 @@ type ExpenseCategory struct {
 	UserID   string `json:"-" db:"user_id"`
 }
 
+type ExpenseDTO struct {
+	CategoryID string `json:"category_id" validate:"required"`
+	Expense    string `json:"expense" validate:"required"`
+	Amount     int    `json:"amount" validate:"required"`
+	Date       string `json:"date" validate:"required,iso8601date"`
+}
+
 type ExpenseCategoryDTO struct {
-	Category string `json:"category" db:"category" validate:"required"`
-	Ico      string `json:"ico" db:"ico" validate:"required,http_url"`
+	Category string `json:"category" validate:"required"`
+	Ico      string `json:"ico" validate:"required,http_url"`
+}
+
+func NewExpense(id, userID string, dto ExpenseDTO) (*Expense, error) {
+	date, err := time.Parse(time.RFC3339Nano, dto.Date)
+	if err != nil {
+		return nil, errors.New("invalid date format")
+	}
+	return &Expense{
+		ID:         id,
+		CategoryID: dto.CategoryID,
+		UserID:     userID,
+		Expense:    dto.Expense,
+		Amount:     dto.Amount,
+		Date:       date,
+		CreatedAt:  time.Now().UTC(),
+		UpdatedAt:  time.Now().UTC(),
+	}, nil
 }
 
 func NewExpenseCategory(id, category, ico, userID string) *ExpenseCategory {
@@ -38,11 +63,13 @@ func NewExpenseCategory(id, category, ico, userID string) *ExpenseCategory {
 }
 
 type ExpenseService interface {
+	AddExpense(ctx context.Context, userID string, dto ExpenseDTO) (*Expense, error)
 	AddExpenseCategory(ctx context.Context, userID string, dto ExpenseCategoryDTO) (*ExpenseCategory, error)
 	ListExpenseCategory(ctx context.Context, userID string) ([]ExpenseCategory, error)
 }
 
 type ExpenseRepository interface {
+	AddExpense(ctx context.Context, expense Expense) error
 	AddExpenseCategory(ctx context.Context, category ExpenseCategory) error
 	ListExpenseCategory(ctx context.Context, userID string) ([]ExpenseCategory, error)
 }
