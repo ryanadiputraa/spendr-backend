@@ -13,12 +13,17 @@ CREATE TABLE users (
 CREATE TABLE expense_categories (
   id VARCHAR(256) PRIMARY KEY,
   category VARCHAR(100) NOT NULL,
-  ico VARCHAR(256) NOT NULL
+  ico VARCHAR(256) NOT NULL,
+  user_id VARCHAR(256) NOT NULL,
+  CONSTRAINT fk_user_id
+    FOREIGN KEY(user_id)
+      REFERENCES users(id)
 );
 
 CREATE TABLE expenses (
   id VARCHAR(256) PRIMARY KEY,
   category_id VARCHAR(256) NOT NULL,
+  user_id VARCHAR(256) NOT NULL,
   expense VARCHAR(100) NOT NULL,
   amount INT NOT NULL,
   date TIMESTAMPTZ NOT NULL,
@@ -26,7 +31,10 @@ CREATE TABLE expenses (
   updated_at TIMESTAMPTZ NOT NULL,
   CONSTRAINT fk_exepnse_category
     FOREIGN KEY(category_id)
-      REFERENCES expense_categories(id)
+      REFERENCES expense_categories(id),
+  CONSTRAINT fk_user_id
+    FOREIGN KEY(user_id)
+      REFERENCES users(id)
 );
 
 CREATE INDEX idx_users_email ON users("email");
