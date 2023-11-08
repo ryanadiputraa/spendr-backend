@@ -2,6 +2,7 @@ package expense
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/labstack/echo/v4"
 	"github.com/ryanadiputraa/spendr-backend/internal/domain"
@@ -23,6 +24,7 @@ func NewHandler(group *echo.Group, validator validator.Validator, service domain
 	}
 
 	group.POST("", h.AddExpense(), authMiddleware.ParseJWTClaims)
+	group.GET("", h.ListLatestExpense(), authMiddleware.ParseJWTClaims)
 	group.GET("/categories", h.ListExpenseCategory(), authMiddleware.ParseJWTClaims)
 	group.POST("/categories", h.AddExpenseCategory(), authMiddleware.ParseJWTClaims)
 }
@@ -53,6 +55,33 @@ func (h *handler) AddExpense() echo.HandlerFunc {
 
 		return c.JSON(http.StatusCreated, map[string]any{
 			"data": expense,
+		})
+	}
+}
+
+func (h *handler) ListLatestExpense() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		userID := c.Get("user_id").(string)
+		limitStr := c.QueryParam("limit")
+		if limitStr == "" {
+			limitStr = "0"
+		}
+
+		limit, err := strconv.Atoi(limitStr)
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, map[string]any{
+				"error": err.Error(),
+			})
+		}
+
+		expenses, err := h.service.ListLatestExpense(c.Request().Context(), userID, limit)
+		if err != nil {
+			code, resp := httpres.MapServiceErrHTTPResponse(err)
+			return c.JSON(code, resp)
+		}
+
+		return c.JSON(http.StatusCreated, map[string]any{
+			"data": expenses,
 		})
 	}
 }

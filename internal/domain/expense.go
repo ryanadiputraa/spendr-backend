@@ -31,6 +31,15 @@ type ExpenseDTO struct {
 	Date       string `json:"date" validate:"required,iso8601date"`
 }
 
+type ExpenseInfoDTO struct {
+	ID          string    `json:"id"`
+	Category    string    `json:"category"`
+	CategoryIco string    `json:"category_ico" db:"category_ico"`
+	Expense     string    `json:"expense"`
+	Amount      int       `json:"amount"`
+	Date        time.Time `json:"date"`
+}
+
 type ExpenseCategoryDTO struct {
 	Category string `json:"category" validate:"required"`
 	Ico      string `json:"ico" validate:"required,http_url"`
@@ -64,12 +73,14 @@ func NewExpenseCategory(id, category, ico, userID string) *ExpenseCategory {
 
 type ExpenseService interface {
 	AddExpense(ctx context.Context, userID string, dto ExpenseDTO) (*Expense, error)
+	ListLatestExpense(ctx context.Context, userID string, limit int) ([]ExpenseInfoDTO, error)
 	AddExpenseCategory(ctx context.Context, userID string, dto ExpenseCategoryDTO) (*ExpenseCategory, error)
 	ListExpenseCategory(ctx context.Context, userID string) ([]ExpenseCategory, error)
 }
 
 type ExpenseRepository interface {
 	AddExpense(ctx context.Context, expense Expense) error
+	ListLatestExpense(ctx context.Context, userID string, limit int) ([]ExpenseInfoDTO, error)
 	AddExpenseCategory(ctx context.Context, category ExpenseCategory) error
 	ListExpenseCategory(ctx context.Context, userID string) ([]ExpenseCategory, error)
 }
