@@ -49,10 +49,8 @@ func (s *service) Signup(ctx context.Context, dto domain.UserDTO) (*domain.User,
 	if err = s.repository.AddUser(ctx, user); err != nil {
 		s.log.Warn(logPrefix, err)
 		var pqErr *pq.Error
-		if errors.As(err, &pqErr) {
-			if pqErr.Code == domain.PQErrDuplicate {
-				return nil, domain.NewError(domain.BadRequest, "email already registered")
-			}
+		if errors.As(err, &pqErr) && pqErr.Code == domain.PQErrDuplicate {
+			return nil, domain.NewError(domain.BadRequest, "email already registered")
 		}
 		return nil, domain.NewError(domain.BadRequest, err.Error())
 	}

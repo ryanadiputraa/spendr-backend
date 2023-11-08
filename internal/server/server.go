@@ -6,6 +6,7 @@ import (
 	_echoMiddleware "github.com/labstack/echo/v4/middleware"
 	"github.com/ryanadiputraa/spendr-backend/config"
 	"github.com/ryanadiputraa/spendr-backend/internal/auth"
+	"github.com/ryanadiputraa/spendr-backend/internal/expense"
 	"github.com/ryanadiputraa/spendr-backend/internal/middleware"
 	"github.com/ryanadiputraa/spendr-backend/internal/user"
 	"github.com/ryanadiputraa/spendr-backend/pkg/jwt"
@@ -42,6 +43,7 @@ func (s *Server) ServeHTTP() error {
 func (s *Server) setupHandlers() {
 	authGroup := s.web.Group("/auth")
 	userGroup := s.web.Group("/api/users")
+	expenseGroup := s.web.Group("/api/expenses")
 
 	validator := validator.NewValidator()
 	jwtService := jwt.NewJWTService()
@@ -53,4 +55,8 @@ func (s *Server) setupHandlers() {
 
 	authService := auth.NewService(s.log, validator, userRepository)
 	auth.NewHandler(authGroup, s.config, s.log, validator, authService, jwtService)
+
+	expenseRepository := expense.NewRepository(s.db)
+	expenseService := expense.NewService(s.log, expenseRepository)
+	expense.NewHandler(expenseGroup, s.log, validator, expenseService, *authMiddleware)
 }
