@@ -2,6 +2,7 @@ package auth
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/labstack/echo/v4"
 	"github.com/ryanadiputraa/spendr-backend/config"
@@ -31,6 +32,7 @@ func NewHandler(group *echo.Group, config *config.Config, log logger.Logger, val
 
 	group.POST("/register", h.Signup())
 	group.POST("/login", h.Signin())
+	group.GET("/refresh_token", h.RefreshJWTTokens())
 }
 
 func (h *handler) Signup() echo.HandlerFunc {
@@ -89,6 +91,47 @@ func (h *handler) Signin() echo.HandlerFunc {
 
 		return c.JSON(http.StatusOK, map[string]any{
 			"data": tokens,
+		})
+	}
+}
+
+func (h *handler) RefreshJWTTokens() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		header := c.Request().Header
+		auth := header["Authorization"]
+		if len(auth) == 0 {
+			return c.JSON(http.StatusUnauthorized, map[string]any{
+				"error": "missing Authorization header",
+			})
+		}
+
+		authToken := auth[0]
+		tokens := strings.Split(authToken, " ")
+		if len(tokens) < 2 || tokens[0] != "Bearer" {
+			return c.JSON(http.StatusUnauthorized, map[string]any{
+				"error": "invalid token, expecting Bearer token header",
+			})
+		}
+
+		claims, err := h.jwtService.ParseJWTClaims(h.config.JWT.RefreshSecret, tokens[1])
+		if err != nil {
+			return c.JSON(http.StatusUnauthorized, map[string]any{
+				"error": "fail to parse jwt claims" + err.Error(),
+			})
+		}
+
+		refreshedTokens, err := h.jwtService.GenerateJWTTokens(h.config, domain.JWTClaims{
+			UserID: claims.UserID,
+		})
+		if err != nil {
+			h.log.Error("auth handler: ", err)
+			return c.JSON(http.StatusInternalServerError, map[string]any{
+				"error": "internal server error",
+			})
+		}
+
+		return c.JSON(http.StatusOK, map[string]any{
+			"data": refreshedTokens,
 		})
 	}
 }
