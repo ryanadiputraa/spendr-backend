@@ -2,7 +2,6 @@ package expense
 
 import (
 	"net/http"
-	"strconv"
 
 	"github.com/labstack/echo/v4"
 	"github.com/ryanadiputraa/spendr-backend/internal/domain"
@@ -24,7 +23,7 @@ func NewHandler(group *echo.Group, validator validator.Validator, service domain
 	}
 
 	group.POST("", h.AddExpense(), authMiddleware.ParseJWTClaims)
-	group.GET("", h.ListLatestExpense(), authMiddleware.ParseJWTClaims)
+	group.GET("", h.ListExpense(), authMiddleware.ParseJWTClaims)
 	group.GET("/categories", h.ListExpenseCategory(), authMiddleware.ParseJWTClaims)
 	group.POST("/categories", h.AddExpenseCategory(), authMiddleware.ParseJWTClaims)
 }
@@ -59,22 +58,17 @@ func (h *handler) AddExpense() echo.HandlerFunc {
 	}
 }
 
-func (h *handler) ListLatestExpense() echo.HandlerFunc {
+func (h *handler) ListExpense() echo.HandlerFunc {
 	return func(c echo.Context) error {
-		userID := c.Get("user_id").(string)
-		limitStr := c.QueryParam("limit")
-		if limitStr == "" {
-			limitStr = "0"
-		}
-
-		limit, err := strconv.Atoi(limitStr)
-		if err != nil {
+		var params domain.ExpenseFilter
+		if err := c.Bind(&params); err != nil {
 			return c.JSON(http.StatusBadRequest, map[string]any{
 				"error": err.Error(),
 			})
 		}
 
-		expenses, err := h.service.ListLatestExpense(c.Request().Context(), userID, limit)
+		userID := c.Get("user_id").(string)
+		expenses, err := h.service.ListExpense(c.Request().Context(), userID, params)
 		if err != nil {
 			code, resp := httpres.MapServiceErrHTTPResponse(err)
 			return c.JSON(code, resp)

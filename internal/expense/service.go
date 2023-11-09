@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/lib/pq"
@@ -41,15 +42,42 @@ func (s *service) AddExpense(ctx context.Context, userID string, dto domain.Expe
 	return expense, nil
 }
 
-func (s *service) ListLatestExpense(ctx context.Context, userID string, limit int) ([]domain.ExpenseInfoDTO, error) {
-	if limit == 0 {
-		limit = 10
+// ListExpense return slice of expense info with given filter
+// if filter object were empty, default filter will be used
+func (s *service) ListExpense(ctx context.Context, userID string, filter domain.ExpenseFilter) ([]domain.ExpenseInfoDTO, error) {
+	if filter.Size == 0 {
+		filter.Size = 10
+	}
+	if filter.Page == 0 {
+		filter.Page = 1
+	}
+	if filter.StartDate == "" {
+		now := time.Now().UTC()
+		firstDayOfMonth := time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, time.UTC)
+		filter.StartDate = firstDayOfMonth.Format(time.RFC3339Nano)
+	}
+	if filter.EndDate == "" {
+		now := time.Now().UTC()
+		nextMonth := now.Month() + 1
+		nextYear := now.Year()
+		if nextMonth > 12 {
+			nextMonth = 1
+			nextYear++
+		}
+
+		firstDayOfNextMonth := time.Date(nextYear, nextMonth, 1, 0, 0, 0, 0, time.UTC)
+		lastDayOfMonth := firstDayOfNextMonth.Add(time.Second - 1)
+		filter.EndDate = lastDayOfMonth.Format(time.RFC3339Nano)
 	}
 
-	expenses, err := s.repository.ListLatestExpense(ctx, userID, limit)
+	expenses, err := s.repository.ListExpense(ctx, userID, filter)
 	if err != nil && err != sql.ErrNoRows {
 		s.log.Error("list latest expense: ", err)
 		return nil, err
+	}
+
+	if expenses == nil {
+		expenses = []domain.ExpenseInfoDTO{}
 	}
 
 	return expenses, nil
@@ -80,6 +108,10 @@ func (s *service) ListExpenseCategory(ctx context.Context, userID string) ([]dom
 	if err != nil && err != sql.ErrNoRows {
 		s.log.Error("list expense category: ", err)
 		return nil, err
+	}
+
+	if categories == nil {
+		categories = []domain.ExpenseCategory{}
 	}
 
 	return categories, err

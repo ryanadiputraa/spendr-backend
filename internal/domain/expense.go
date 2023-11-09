@@ -45,6 +45,13 @@ type ExpenseCategoryDTO struct {
 	Ico      string `json:"ico" validate:"required,http_url"`
 }
 
+type ExpenseFilter struct {
+	Size      int    `query:"size"`
+	Page      int    `query:"page"`
+	StartDate string `query:"start_date"`
+	EndDate   string `query:"end_date"`
+}
+
 func NewExpense(id, userID string, dto ExpenseDTO) (*Expense, error) {
 	date, err := time.Parse(time.RFC3339Nano, dto.Date)
 	if err != nil {
@@ -73,14 +80,14 @@ func NewExpenseCategory(id, category, ico, userID string) *ExpenseCategory {
 
 type ExpenseService interface {
 	AddExpense(ctx context.Context, userID string, dto ExpenseDTO) (*Expense, error)
-	ListLatestExpense(ctx context.Context, userID string, limit int) ([]ExpenseInfoDTO, error)
+	ListExpense(ctx context.Context, userID string, filter ExpenseFilter) ([]ExpenseInfoDTO, error)
 	AddExpenseCategory(ctx context.Context, userID string, dto ExpenseCategoryDTO) (*ExpenseCategory, error)
 	ListExpenseCategory(ctx context.Context, userID string) ([]ExpenseCategory, error)
 }
 
 type ExpenseRepository interface {
 	AddExpense(ctx context.Context, expense Expense) error
-	ListLatestExpense(ctx context.Context, userID string, limit int) ([]ExpenseInfoDTO, error)
+	ListExpense(ctx context.Context, userID string, filter ExpenseFilter) ([]ExpenseInfoDTO, error)
 	AddExpenseCategory(ctx context.Context, category ExpenseCategory) error
 	ListExpenseCategory(ctx context.Context, userID string) ([]ExpenseCategory, error)
 }
