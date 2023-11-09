@@ -2,6 +2,7 @@ package expense
 
 import (
 	"context"
+	"database/sql"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/ryanadiputraa/spendr-backend/internal/domain"
@@ -47,6 +48,20 @@ func (r *repository) ListExpense(ctx context.Context, userID string, filter doma
 	err := r.DB.Select(&expenses, q, userID, filter.Size, offset, filter.StartDate, filter.EndDate)
 
 	return expenses, err
+}
+
+func (r *repository) DeleteExpense(ctx context.Context, userID, expenseID string) error {
+	q := `DELETE FROM expenses WHERE id = $1 AND user_id = $2`
+	res, err := r.DB.Exec(q, expenseID, userID)
+	c, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if c < 1 {
+		return sql.ErrNoRows
+	}
+
+	return err
 }
 
 func (r *repository) AddExpenseCategory(ctx context.Context, category domain.ExpenseCategory) error {

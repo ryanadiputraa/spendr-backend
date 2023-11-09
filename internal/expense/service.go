@@ -83,6 +83,17 @@ func (s *service) ListExpense(ctx context.Context, userID string, filter domain.
 	return expenses, nil
 }
 
+func (s *service) DeleteExpense(ctx context.Context, userID, expenseID string) error {
+	if err := s.repository.DeleteExpense(ctx, userID, expenseID); err != nil {
+		if err == sql.ErrNoRows {
+			return domain.NewError(domain.BadRequest, "no expense data found")
+		}
+		s.log.Error("delete expense: ", err)
+		return err
+	}
+	return nil
+}
+
 func (s *service) AddExpenseCategory(ctx context.Context, userID string, dto domain.ExpenseCategoryDTO) (*domain.ExpenseCategory, error) {
 	category := domain.NewExpenseCategory(
 		uuid.NewString(),
