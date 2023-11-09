@@ -78,3 +78,31 @@ func (r *repository) ListExpenseCategory(ctx context.Context, userID string) ([]
 
 	return categories, err
 }
+
+func (r *repository) DeleteExpenseCategory(ctx context.Context, userID, categoryID string) error {
+	updateExpenseCategories := `UPDATE expenses SET category_id = NULL WHERE id category_id = $1 AND user_id = $2`
+	deleteCategories := `DELETE FROM expense_categories WHERE id = $1 AND user_id = $2`
+
+	tx, err := r.DB.BeginTxx(ctx, nil)
+	if err != nil {
+		return err
+	}
+
+	_, err = tx.ExecContext(ctx, updateExpenseCategories, categoryID, userID)
+	if err != nil {
+		tx.Rollback()
+		return sql.ErrNoRows
+	}
+
+	_, err = tx.ExecContext(ctx, deleteCategories, categoryID, userID)
+	if err != nil {
+		tx.Rollback()
+		return sql.ErrNoRows
+	}
+
+	if err = tx.Commit(); err != nil {
+		tx.Rollback()
+		return err
+	}
+	return nil
+}

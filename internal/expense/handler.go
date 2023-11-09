@@ -27,6 +27,7 @@ func NewHandler(group *echo.Group, validator validator.Validator, service domain
 	group.DELETE("/:id", h.DeleteExpense(), authMiddleware.ParseJWTClaims)
 	group.GET("/categories", h.ListExpenseCategory(), authMiddleware.ParseJWTClaims)
 	group.POST("/categories", h.AddExpenseCategory(), authMiddleware.ParseJWTClaims)
+	group.DELETE("/categories/:id", h.AddExpenseCategory(), authMiddleware.ParseJWTClaims)
 }
 
 func (h *handler) AddExpense() echo.HandlerFunc {
@@ -138,6 +139,22 @@ func (h *handler) ListExpenseCategory() echo.HandlerFunc {
 
 		return c.JSON(http.StatusOK, map[string]any{
 			"data": categories,
+		})
+	}
+}
+
+func (h *handler) DeleteExpenseCategory() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		categoryID := c.Param("id")
+		userID := c.Get("user_id").(string)
+
+		if err := h.service.DeleteExpenseCategory(c.Request().Context(), userID, categoryID); err != nil {
+			code, resp := httpres.MapServiceErrHTTPResponse(err)
+			return c.JSON(code, resp)
+		}
+
+		return c.JSON(http.StatusOK, map[string]any{
+			"data": nil,
 		})
 	}
 }

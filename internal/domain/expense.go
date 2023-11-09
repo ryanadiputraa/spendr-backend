@@ -84,6 +84,7 @@ type ExpenseService interface {
 	DeleteExpense(ctx context.Context, userID, expenseID string) error
 	AddExpenseCategory(ctx context.Context, userID string, dto ExpenseCategoryDTO) (*ExpenseCategory, error)
 	ListExpenseCategory(ctx context.Context, userID string) ([]ExpenseCategory, error)
+	DeleteExpenseCategory(ctx context.Context, userID, categoryID string) error
 }
 
 type ExpenseRepository interface {
@@ -92,4 +93,5 @@ type ExpenseRepository interface {
 	DeleteExpense(ctx context.Context, userID, expenseID string) error
 	AddExpenseCategory(ctx context.Context, category ExpenseCategory) error
 	ListExpenseCategory(ctx context.Context, userID string) ([]ExpenseCategory, error)
+	DeleteExpenseCategory(ctx context.Context, userID, categoryID string) error
 }
