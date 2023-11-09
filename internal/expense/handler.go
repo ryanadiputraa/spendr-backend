@@ -27,7 +27,7 @@ func NewHandler(group *echo.Group, validator validator.Validator, service domain
 	group.DELETE("/:id", h.DeleteExpense(), authMiddleware.ParseJWTClaims)
 	group.GET("/categories", h.ListExpenseCategory(), authMiddleware.ParseJWTClaims)
 	group.POST("/categories", h.AddExpenseCategory(), authMiddleware.ParseJWTClaims)
-	group.DELETE("/categories/:id", h.AddExpenseCategory(), authMiddleware.ParseJWTClaims)
+	group.DELETE("/categories/:id", h.DeleteExpenseCategory(), authMiddleware.ParseJWTClaims)
 }
 
 func (h *handler) AddExpense() echo.HandlerFunc {

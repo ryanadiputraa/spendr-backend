@@ -80,7 +80,7 @@ func (r *repository) ListExpenseCategory(ctx context.Context, userID string) ([]
 }
 
 func (r *repository) DeleteExpenseCategory(ctx context.Context, userID, categoryID string) error {
-	updateExpenseCategories := `UPDATE expenses SET category_id = NULL WHERE id category_id = $1 AND user_id = $2`
+	updateExpenseCategories := `UPDATE expenses SET category_id = NULL WHERE category_id = $1 AND user_id = $2`
 	deleteCategories := `DELETE FROM expense_categories WHERE id = $1 AND user_id = $2`
 
 	tx, err := r.DB.BeginTxx(ctx, nil)
