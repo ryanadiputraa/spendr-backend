@@ -17,6 +17,38 @@ func NewRepository(DB *sqlx.DB) domain.ExpenseRepository {
 	}
 }
 
+func (r *repository) AddExpense(ctx context.Context, expense domain.Expense) error {
+	q := `INSERT INTO expenses (id, category_id, user_id, expense, amount, date, created_at, updated_at)
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`
+
+	_, err := r.DB.Exec(
+		q,
+		expense.ID,
+		expense.CategoryID,
+		expense.UserID,
+		expense.Expense,
+		expense.Amount,
+		expense.Date,
+		expense.CreatedAt,
+		expense.UpdatedAt,
+	)
+
+	return err
+}
+
+func (r *repository) ListExpense(ctx context.Context, userID string, filter domain.ExpenseFilter) ([]domain.ExpenseInfoDTO, error) {
+	q := `SELECT expenses.id AS id, c.category AS category, c.ico AS category_ico, expense, amount, date
+    FROM expenses LEFT JOIN expense_categories AS c ON c.id = expenses.category_id
+    WHERE expenses.user_id = $1 AND date BETWEEN $4 AND $5
+    ORDER BY date DESC LIMIT $2 OFFSET $3`
+
+	var expenses []domain.ExpenseInfoDTO
+	offset := (filter.Page - 1) * filter.Size
+	err := r.DB.Select(&expenses, q, userID, filter.Size, offset, filter.StartDate, filter.EndDate)
+
+	return expenses, err
+}
+
 func (r *repository) AddExpenseCategory(ctx context.Context, category domain.ExpenseCategory) error {
 	q := `INSERT INTO expense_categories (id, category, ico, user_id) VALUES ($1, $2, $3, $4)`
 	_, err := r.DB.Exec(q, category.ID, category.Category, category.Ico, category.UserID)

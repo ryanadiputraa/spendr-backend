@@ -3,6 +3,7 @@ package validator
 import (
 	"errors"
 	"fmt"
+	"time"
 	"unicode"
 
 	"github.com/go-playground/validator/v10"
@@ -17,8 +18,11 @@ type validation struct {
 }
 
 func NewValidator() Validator {
+	v := validator.New()
+	v.RegisterValidation("iso8601date", isISO8601Date)
+
 	return &validation{
-		validator: validator.New(),
+		validator: v,
 	}
 }
 
@@ -52,18 +56,27 @@ func FieldErrMsg(err validator.FieldError) string {
 		return fmt.Sprintf("%s should be a valid email address", field)
 	case "http_url":
 		return fmt.Sprintf("%s should be a valid http url", field)
+	case "iso8601date":
+		return fmt.Sprintf("%s should be a valid ISO8601 date", field)
 	default:
 		return err.Error()
 	}
 }
 
 func fieldToSnakeCase(input string) string {
+	prev := rune(0)
 	var result []rune
 	for i, char := range input {
-		if i > 0 && unicode.IsUpper(char) {
+		if i > 0 && unicode.IsUpper(char) && unicode.IsLower(prev) {
 			result = append(result, '_')
 		}
 		result = append(result, unicode.ToLower(char))
+		prev = char
 	}
 	return string(result)
+}
+
+func isISO8601Date(fl validator.FieldLevel) bool {
+	_, err := time.Parse(time.RFC3339Nano, fl.Field().String())
+	return err == nil
 }
