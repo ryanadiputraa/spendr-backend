@@ -20,7 +20,12 @@ migrate -path pkg/db/migration -database "postgresql://<user>:<password>@localho
 ```
 - if you want to create migration you can use: `migrate create -ext sql -dir pkg/db/migration -seq <migration_name>`
 
-- Start server:
+- Use [air](https://github.com/cosmtrek/air) for live reload and start server:
 ```bash
 make server
+```
+
+- Or you can start server without live reload:
+```bash
+go run cmd/api/main.go
 ```
