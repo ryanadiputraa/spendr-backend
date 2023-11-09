@@ -2,6 +2,7 @@ package expense
 
 import (
 	"context"
+	"database/sql"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/ryanadiputraa/spendr-backend/internal/domain"
@@ -49,6 +50,20 @@ func (r *repository) ListExpense(ctx context.Context, userID string, filter doma
 	return expenses, err
 }
 
+func (r *repository) DeleteExpense(ctx context.Context, userID, expenseID string) error {
+	q := `DELETE FROM expenses WHERE id = $1 AND user_id = $2`
+	res, err := r.DB.Exec(q, expenseID, userID)
+	c, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if c < 1 {
+		return sql.ErrNoRows
+	}
+
+	return err
+}
+
 func (r *repository) AddExpenseCategory(ctx context.Context, category domain.ExpenseCategory) error {
 	q := `INSERT INTO expense_categories (id, category, ico, user_id) VALUES ($1, $2, $3, $4)`
 	_, err := r.DB.Exec(q, category.ID, category.Category, category.Ico, category.UserID)
@@ -62,4 +77,32 @@ func (r *repository) ListExpenseCategory(ctx context.Context, userID string) ([]
 	err := r.DB.Select(&categories, q, userID)
 
 	return categories, err
+}
+
+func (r *repository) DeleteExpenseCategory(ctx context.Context, userID, categoryID string) error {
+	updateExpenseCategories := `UPDATE expenses SET category_id = NULL WHERE category_id = $1 AND user_id = $2`
+	deleteCategories := `DELETE FROM expense_categories WHERE id = $1 AND user_id = $2`
+
+	tx, err := r.DB.BeginTxx(ctx, nil)
+	if err != nil {
+		return err
+	}
+
+	_, err = tx.ExecContext(ctx, updateExpenseCategories, categoryID, userID)
+	if err != nil {
+		tx.Rollback()
+		return sql.ErrNoRows
+	}
+
+	_, err = tx.ExecContext(ctx, deleteCategories, categoryID, userID)
+	if err != nil {
+		tx.Rollback()
+		return sql.ErrNoRows
+	}
+
+	if err = tx.Commit(); err != nil {
+		tx.Rollback()
+		return err
+	}
+	return nil
 }

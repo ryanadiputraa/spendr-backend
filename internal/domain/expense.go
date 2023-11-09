@@ -81,13 +81,17 @@ func NewExpenseCategory(id, category, ico, userID string) *ExpenseCategory {
 type ExpenseService interface {
 	AddExpense(ctx context.Context, userID string, dto ExpenseDTO) (*Expense, error)
 	ListExpense(ctx context.Context, userID string, filter ExpenseFilter) ([]ExpenseInfoDTO, error)
+	DeleteExpense(ctx context.Context, userID, expenseID string) error
 	AddExpenseCategory(ctx context.Context, userID string, dto ExpenseCategoryDTO) (*ExpenseCategory, error)
 	ListExpenseCategory(ctx context.Context, userID string) ([]ExpenseCategory, error)
+	DeleteExpenseCategory(ctx context.Context, userID, categoryID string) error
 }
 
 type ExpenseRepository interface {
 	AddExpense(ctx context.Context, expense Expense) error
 	ListExpense(ctx context.Context, userID string, filter ExpenseFilter) ([]ExpenseInfoDTO, error)
+	DeleteExpense(ctx context.Context, userID, expenseID string) error
 	AddExpenseCategory(ctx context.Context, category ExpenseCategory) error
 	ListExpenseCategory(ctx context.Context, userID string) ([]ExpenseCategory, error)
+	DeleteExpenseCategory(ctx context.Context, userID, categoryID string) error
 }
