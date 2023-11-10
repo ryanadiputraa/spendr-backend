@@ -1,16 +1,16 @@
 server:
-  port: ':8080'
+  port: :8080
 
 postgres:
-  host: ''
-  port: ''
-  user: ''
-  password: ''
-  db_name: ''
-  ssl_mode: false
+  host: host
+  port: '5432'
+  user: user
+  password: password
+  db_name: dbname
+  ssl_mode: disable
 
 jwt:
-  secret: ''
-  expires_in: '1h0m0s'
-  refresh_secret: ''
-  refresh_expires_in: '72h0m0s'
+  secret: secret
+  expires_in: 1h0m0s
+  refresh_secret: refreshsecret
+  refresh_expires_in: 72h0m0s

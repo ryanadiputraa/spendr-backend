@@ -1,0 +1,77 @@
+post:
+  summary: user sign up using email
+  tags:
+    - Auth
+  requestBody:
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            email:
+              type: string
+              example: test@mail.com
+            password:
+              type: string
+              example: password
+            first_name:
+              type: string
+              example: John
+            last_name:
+              type: string
+              example: Doe
+            currency:
+              type: string
+              example: idr
+            picture:
+              type: string
+              example: https://google.picture.com/test.png
+
+  responses:
+    201:
+      description: register user
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              id:
+                type: string
+                example: 2fb133d7-b6fc-4779-a6ea-0e7d999a5e7f
+              first_name:
+                type: string
+                example: John
+              last_name:
+                type: string
+                example: Doe
+              email:
+                type: string
+                example: test@mail.com
+              currency:
+                type: string
+                example: idr
+              picture:
+                type: string
+                example: https://google.picture.com/test.png
+    400:
+      description: invalid params
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                example: invalid params
+              errors:
+                type: object
+                properties:
+                  email:
+                    type: string
+                    example: required
+                  password:
+                    type: string
+                    example: password should have a minimum length of 8
+                  picture:
+                    type: string
+                    example: picture should be a valid http url

@@ -1,0 +1,33 @@
+get:
+  summary: refresh jwt tokens
+  tags:
+    - Auth
+  security:
+    - bearer: []
+  responses:
+    200:
+      description: refresh tokens
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              access_token:
+                type: string
+                example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2OTIyODUxMzgsInN1YiI6IjUwMDk2NjkxLWY1YjctNDk2OC05MWRjLWFlNThhYTZmMTc0ZiJ9.i4NggbYlntH6A5_zHbR2UJgHtmJGJAMGwW43-DlWHeY
+              expires_in:
+                type: int
+                example: 1692283819
+              refresh_token:
+                type: string
+                example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2OTIyODUxMzgsInN1YiI6IjUwMDk2NjkxLWY1YjctNDk2OC05MWRjLWFlNThhYTZmMTc0ZiJ9.i4NggbYlntH6A5_zHbR2UJgHtmJGJAMGwW43-DlWHeY
+    401:
+      description: unauthorized
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                example: refresh token expired

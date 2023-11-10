@@ -1,6 +1,7 @@
 package server
 
 import (
+	_openAPIMiddleware "github.com/go-openapi/runtime/middleware"
 	"github.com/jmoiron/sqlx"
 	"github.com/labstack/echo/v4"
 	_echoMiddleware "github.com/labstack/echo/v4/middleware"
@@ -59,4 +60,16 @@ func (s *Server) setupHandlers() {
 	expenseRepository := expense.NewRepository(s.db)
 	expenseService := expense.NewService(s.log, expenseRepository)
 	expense.NewHandler(expenseGroup, validator, expenseService, *authMiddleware)
+
+	sh := _openAPIMiddleware.Redoc(_openAPIMiddleware.RedocOpts{
+		SpecURL: "/api/open-api/open-api.yml",
+		Path:    "/api/docs",
+		Title:   "Spendr - API Docs",
+	}, nil)
+
+	s.web.Static("/api/open-api", "api/open-api")
+	s.web.GET("/api/docs", func(c echo.Context) error {
+		sh.ServeHTTP(c.Response().Writer, c.Request())
+		return nil
+	})
 }

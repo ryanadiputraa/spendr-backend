@@ -1,0 +1,40 @@
+swagger: '2.0'
+
+info:
+  title: Spendr API
+  description: >-
+    The Spendr API defines an HTTP(S) interface between Clients and Spendr Backend Service.
+  version: 1.0.0
+  contact:
+    name: Ryan Adi Putra
+    url: https://ryanadiputra.vercel.app
+    email: ryannadiputraa@gmail.com
+
+host: localhost:8080
+schemes:
+  - http
+
+consumes:
+  - application/json
+produces:
+  - application/json
+
+paths:
+  /auth/register:
+    $ref: ./auth/signup.yml
+  /auth/login:
+    $ref: ./auth/signin.yml
+  /auth/refresh_token:
+    $ref: ./auth/refresh.yml
+
+securityDefinitions:
+  bearer:
+    type: jwt
+    name: Authorization
+    in: header
+    description: >-
+      Enter the token with the `Bearer: ` prefix, e.g. "Bearer abcde12345".
+
+externalDocs:
+  description: Github
+  url: http://github.com/ryanadiputraa/spendr-backend
