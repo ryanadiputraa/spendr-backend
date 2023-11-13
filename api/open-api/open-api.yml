@@ -34,6 +34,10 @@ paths:
     $ref: ./expense/categories.yml
   /api/expenses/categories/{id}:
     $ref: ./expense/category.yml
+  /api/expenses:
+    $ref: ./expense/expenses.yml
+  /api/expenses/{id}:
+    $ref: ./expense/expense.yml
 
 
 securityDefinitions:

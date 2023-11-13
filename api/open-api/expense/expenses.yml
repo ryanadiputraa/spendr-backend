@@ -1,5 +1,5 @@
 post:
-  summary: add expense category
+  summary: add expense
   tags:
     - Expense
   requestBody:
@@ -8,12 +8,18 @@ post:
         schema:
           type: object
           properties:
-            category:
+            category_id:
               type: string
-              example: Groceries
-            ico:
+              example: 2fb133d7-b6fc-4779-a6ea-0e7d999a5e7f
+            expense:
               type: string
-              example: https://domain.com/example.png
+              example: Monthly groceries
+            amount:
+              type: int
+              example: 250000
+            date:
+              type: string
+              example: '2023-11-13T15:58:00Z'
   responses:
     201:
       description: saved category
@@ -28,12 +34,18 @@ post:
                   id:
                     type: string
                     example: 2fb133d7-b6fc-4779-a6ea-0e7d999a5e7f
-                  category:
+                  category_id:
                     type: string
-                    example: Groceries
-                  ico:
+                    example: 2fb133d7-b6fc-4779-a6ea-0e7d999a5e7f
+                  expense:
                     type: string
-                    example: https://domain.com/example.png
+                    example: Monthly groceries
+                  amount:
+                    type: int
+                    example: 250000
+                  date:
+                    type: string
+                    example: '2023-11-13T15:58:00Z'
     400:
       description: invalid params
       content:
@@ -47,20 +59,20 @@ post:
               errors:
                 type: object
                 properties:
-                  category:
+                  amount:
                     type: string
-                    example: category is required
-                  ico:
+                    example: amount is required
+                  date:
                     type: string
-                    example: ico must be a valid http url
+                    example: date must be a valid http url
 
 get:
-  summary: list of user expense categories
+  summary: list of user expenses
   tags:
     - Expense
   responses:
     200:
-      description: user categories
+      description: user expenses
       content:
         application/json:
           schema:
@@ -80,6 +92,15 @@ get:
                     ico:
                       type: string
                       example: https://domain.com/example.png
+                    expense:
+                      type: string
+                      example: Monthly groceries
+                    amount:
+                      type: int
+                      example: 250000
+                    date:
+                      type: string
+                      example: '2023-11-08T20:37:00Z'
     401:
       description: unauthorized
       content:

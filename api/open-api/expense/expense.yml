@@ -1,0 +1,24 @@
+delete:
+  summary: delete expense
+  tags:
+    - Expense
+  responses:
+    200:
+      description: delete expense
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              data:
+                type: null
+    400:
+      description: invalid params
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                example: expense didn't exists
