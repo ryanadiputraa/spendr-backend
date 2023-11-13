@@ -70,6 +70,32 @@ get:
   summary: list of user expenses
   tags:
     - Expense
+  parameters:
+    - in: query
+      name: size
+      schema:
+        type: integer
+      description: the size of result per page
+    - in: query
+      name: page
+      schema:
+        type: integer
+      description: the result page
+    - in: query
+      name: start_date
+      schema:
+        type: string
+      description: the start date of filter expense result, use RFC399Nano date format
+    - in: query
+      name: end_date
+      schema:
+        type: string
+      description: the end date of filter expense result, use RFC399Nano date format
+    - in: query
+      name: category_id
+      schema:
+        type: string
+      description: the category id filter of expense result
   responses:
     200:
       description: user expenses
