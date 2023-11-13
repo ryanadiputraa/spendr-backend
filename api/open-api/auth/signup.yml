@@ -35,24 +35,27 @@ post:
           schema:
             type: object
             properties:
-              id:
-                type: string
-                example: 2fb133d7-b6fc-4779-a6ea-0e7d999a5e7f
-              first_name:
-                type: string
-                example: John
-              last_name:
-                type: string
-                example: Doe
-              email:
-                type: string
-                example: test@mail.com
-              currency:
-                type: string
-                example: idr
-              picture:
-                type: string
-                example: https://google.picture.com/test.png
+              data:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    example: 2fb133d7-b6fc-4779-a6ea-0e7d999a5e7f
+                  first_name:
+                    type: string
+                    example: John
+                  last_name:
+                    type: string
+                    example: Doe
+                  email:
+                    type: string
+                    example: test@mail.com
+                  currency:
+                    type: string
+                    example: idr
+                  picture:
+                    type: string
+                    example: https://google.picture.com/test.png
     400:
       description: invalid params
       content:
