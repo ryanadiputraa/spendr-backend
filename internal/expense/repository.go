@@ -3,6 +3,7 @@ package expense
 import (
 	"context"
 	"database/sql"
+	"fmt"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/ryanadiputraa/spendr-backend/internal/domain"
@@ -38,14 +39,25 @@ func (r *repository) AddExpense(ctx context.Context, expense domain.Expense) err
 }
 
 func (r *repository) ListExpense(ctx context.Context, userID string, filter domain.ExpenseFilter) ([]domain.ExpenseInfoDTO, error) {
-	q := `SELECT expenses.id AS id, c.category AS category, c.ico AS category_ico, expense, amount, date
+	categoryFilter := ""
+	if filter.CategoryID != "" {
+		categoryFilter = "AND category_id = $6"
+	}
+
+	q := fmt.Sprintf(`SELECT expenses.id AS id, c.category AS category, c.ico AS category_ico, expense, amount, date
     FROM expenses LEFT JOIN expense_categories AS c ON c.id = expenses.category_id
-    WHERE expenses.user_id = $1 AND date BETWEEN $4 AND $5
-    ORDER BY date DESC LIMIT $2 OFFSET $3`
+    WHERE expenses.user_id = $1 %v AND date BETWEEN $4 AND $5
+    ORDER BY date DESC LIMIT $2 OFFSET $3`, categoryFilter)
 
 	var expenses []domain.ExpenseInfoDTO
 	offset := (filter.Page - 1) * filter.Size
-	err := r.DB.Select(&expenses, q, userID, filter.Size, offset, filter.StartDate, filter.EndDate)
+
+	var err error
+	if categoryFilter == "" {
+		err = r.DB.Select(&expenses, q, userID, filter.Size, offset, filter.StartDate, filter.EndDate)
+	} else {
+		err = r.DB.Select(&expenses, q, userID, filter.Size, offset, filter.StartDate, filter.EndDate, filter.CategoryID)
+	}
 
 	return expenses, err
 }

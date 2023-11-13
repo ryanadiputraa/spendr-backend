@@ -48,10 +48,11 @@ type ExpenseCategoryDTO struct {
 }
 
 type ExpenseFilter struct {
-	Size      int    `query:"size"`
-	Page      int    `query:"page"`
-	StartDate string `query:"start_date"`
-	EndDate   string `query:"end_date"`
+	Size       int    `query:"size"`
+	Page       int    `query:"page"`
+	StartDate  string `query:"start_date"`
+	EndDate    string `query:"end_date"`
+	CategoryID string `query:"category_id"`
 }
 
 func NewExpense(id, userID string, dto ExpenseDTO) (*Expense, error) {
