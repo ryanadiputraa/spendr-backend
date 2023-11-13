@@ -26,6 +26,10 @@ paths:
     $ref: ./auth/signin.yml
   /auth/refresh_token:
     $ref: ./auth/refresh.yml
+  /users:
+    $ref: ./user/user-data.yml
+  /users/currencies:
+    $ref: ./user/currencies.yml
 
 securityDefinitions:
   bearer:

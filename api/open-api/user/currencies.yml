@@ -1,0 +1,27 @@
+get:
+  summary: list of supported currencies
+  tags:
+    - User
+  responses:
+    200:
+      description: list of currencies
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              data:
+                type: array
+                items:
+                  type: string
+                  example: idr
+    500:
+      description: internal server error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                example: internal server error
