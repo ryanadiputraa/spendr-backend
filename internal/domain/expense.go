@@ -2,6 +2,8 @@ package domain
 
 import (
 	"context"
+	"database/sql"
+	"encoding/json"
 	"errors"
 	"time"
 )
@@ -32,12 +34,12 @@ type ExpenseDTO struct {
 }
 
 type ExpenseInfoDTO struct {
-	ID          string    `json:"id"`
-	Category    string    `json:"category"`
-	CategoryIco string    `json:"category_ico" db:"category_ico"`
-	Expense     string    `json:"expense"`
-	Amount      int       `json:"amount"`
-	Date        time.Time `json:"date"`
+	ID          string         `json:"id"`
+	Category    sql.NullString `json:"category"`
+	CategoryIco sql.NullString `json:"category_ico" db:"category_ico"`
+	Expense     string         `json:"expense"`
+	Amount      int            `json:"amount"`
+	Date        time.Time      `json:"date"`
 }
 
 type ExpenseCategoryDTO struct {
@@ -76,6 +78,19 @@ func NewExpenseCategory(id, category, ico, userID string) *ExpenseCategory {
 		Ico:      ico,
 		UserID:   userID,
 	}
+}
+
+func (e ExpenseInfoDTO) MarshalJSON() ([]byte, error) {
+	type Alias ExpenseInfoDTO
+	return json.Marshal(&struct {
+		*Alias
+		Category    interface{} `json:"category"`
+		CategoryIco interface{} `json:"category_ico" db:"category_ico"`
+	}{
+		Category:    e.Category.String,
+		CategoryIco: e.CategoryIco.String,
+		Alias:       (*Alias)(&e),
+	})
 }
 
 type ExpenseService interface {
