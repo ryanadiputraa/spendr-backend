@@ -3,6 +3,7 @@ package expense
 import (
 	"context"
 	"database/sql"
+	"time"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/ryanadiputraa/spendr-backend/internal/domain"
@@ -43,11 +44,31 @@ func (r *repository) ListExpense(ctx context.Context, userID string, filter doma
     WHERE expenses.user_id = $1 AND date BETWEEN $4 AND $5
     ORDER BY date DESC LIMIT $2 OFFSET $3`
 
-	var expenses []domain.ExpenseInfoDTO
+	type Expense struct {
+		ID          string
+		Category    sql.NullString
+		CategoryIco sql.NullString `db:"category_ico"`
+		Expense     string
+		Amount      int
+		Date        time.Time
+	}
+	var expenses []Expense
 	offset := (filter.Page - 1) * filter.Size
 	err := r.DB.Select(&expenses, q, userID, filter.Size, offset, filter.StartDate, filter.EndDate)
 
-	return expenses, err
+	var res []domain.ExpenseInfoDTO
+	for _, e := range expenses {
+		res = append(res, domain.ExpenseInfoDTO{
+			ID:          e.ID,
+			Category:    e.Category.String,
+			CategoryIco: e.CategoryIco.String,
+			Expense:     e.Expense,
+			Amount:      e.Amount,
+			Date:        e.Date,
+		})
+	}
+
+	return res, err
 }
 
 func (r *repository) DeleteExpense(ctx context.Context, userID, expenseID string) error {

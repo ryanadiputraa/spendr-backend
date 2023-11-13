@@ -25,7 +25,7 @@ type ExpenseCategory struct {
 }
 
 type ExpenseDTO struct {
-	CategoryID string `json:"category_id" validate:"required"`
+	CategoryID string `json:"category_id"`
 	Expense    string `json:"expense" validate:"required"`
 	Amount     int    `json:"amount" validate:"required"`
 	Date       string `json:"date" validate:"required,iso8601date"`
