@@ -94,9 +94,16 @@ func (r *repository) DeleteExpenseCategory(ctx context.Context, userID, category
 		return sql.ErrNoRows
 	}
 
-	_, err = tx.ExecContext(ctx, deleteCategories, categoryID, userID)
+	res, err := tx.ExecContext(ctx, deleteCategories, categoryID, userID)
 	if err != nil {
 		tx.Rollback()
+		return sql.ErrNoRows
+	}
+	c, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if c < 1 {
 		return sql.ErrNoRows
 	}
 
