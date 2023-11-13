@@ -26,10 +26,15 @@ paths:
     $ref: ./auth/signin.yml
   /auth/refresh_token:
     $ref: ./auth/refresh.yml
-  /users:
+  /api/users:
     $ref: ./user/user-data.yml
-  /users/currencies:
+  /api/users/currencies:
     $ref: ./user/currencies.yml
+  /api/expenses/categories:
+    $ref: ./expense/categories.yml
+  /api/expenses/categories/{id}:
+    $ref: ./expense/category.yml
+
 
 securityDefinitions:
   bearer:
