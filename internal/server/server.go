@@ -1,18 +1,18 @@
 package server
 
 import (
-	_openAPIMiddleware "github.com/go-openapi/runtime/middleware"
+	"context"
+	"net/http"
+	"os"
+	"os/signal"
+	"time"
+
 	"github.com/jmoiron/sqlx"
 	"github.com/labstack/echo/v4"
 	_echoMiddleware "github.com/labstack/echo/v4/middleware"
 	"github.com/ryanadiputraa/spendr-backend/config"
-	"github.com/ryanadiputraa/spendr-backend/internal/auth"
-	"github.com/ryanadiputraa/spendr-backend/internal/expense"
-	"github.com/ryanadiputraa/spendr-backend/internal/middleware"
-	"github.com/ryanadiputraa/spendr-backend/internal/user"
-	"github.com/ryanadiputraa/spendr-backend/pkg/jwt"
+
 	"github.com/ryanadiputraa/spendr-backend/pkg/logger"
-	"github.com/ryanadiputraa/spendr-backend/pkg/validator"
 )
 
 type Server struct {
@@ -38,38 +38,29 @@ func (s *Server) ServeHTTP() error {
 		AllowHeaders: []string{"Origin", "Content-Type", "Accept", "Authorization", "Access-Control-Allow-Origin"},
 		AllowMethods: []string{"OPTIONS", "GET", "POST", "PUT", "PATCH", "DELETE"},
 	}))
-	return s.web.Start(s.config.Server.Port)
-}
 
-func (s *Server) setupHandlers() {
-	authGroup := s.web.Group("/auth")
-	userGroup := s.web.Group("/api/users")
-	expenseGroup := s.web.Group("/api/expenses")
+	server := &http.Server{
+		Addr:         s.config.Server.Port,
+		Handler:      s.web,
+		ReadTimeout:  time.Second * 30,
+		WriteTimeout: time.Second * 30,
+	}
 
-	validator := validator.NewValidator()
-	jwtService := jwt.NewJWTService()
-	authMiddleware := middleware.NewAuthMiddleware(s.config, jwtService)
+	go func() {
+		if err := server.ListenAndServe(); err != nil {
+			s.log.Fatal(err)
+		}
+	}()
 
-	userRepository := user.NewRepository(s.db)
-	userService := user.NewService(s.log, userRepository)
-	user.NewHandler(userGroup, userService, *authMiddleware)
+	quit := make(chan os.Signal)
+	signal.Notify(quit, os.Interrupt)
+	signal.Notify(quit, os.Kill)
 
-	authService := auth.NewService(s.log, validator, userRepository)
-	auth.NewHandler(authGroup, s.config, s.log, validator, authService, jwtService)
+	sig := <-quit
+	s.log.Info("received terminate, graceful shutdown ", sig)
 
-	expenseRepository := expense.NewRepository(s.db)
-	expenseService := expense.NewService(s.log, expenseRepository)
-	expense.NewHandler(expenseGroup, validator, expenseService, *authMiddleware)
+	tc, shutdown := context.WithTimeout(context.Background(), 30*time.Second)
+	defer shutdown()
 
-	sh := _openAPIMiddleware.Redoc(_openAPIMiddleware.RedocOpts{
-		SpecURL: "/api/open-api/open-api.yml",
-		Path:    "/api/docs",
-		Title:   "Spendr - API Docs",
-	}, nil)
-
-	s.web.Static("/api/open-api", "api/open-api")
-	s.web.GET("/api/docs", func(c echo.Context) error {
-		sh.ServeHTTP(c.Response().Writer, c.Request())
-		return nil
-	})
+	return server.Shutdown(tc)
 }
