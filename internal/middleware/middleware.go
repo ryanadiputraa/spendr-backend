@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/labstack/echo/v4"
-	"github.com/ryanadiputraa/spendr-backend/config"
+	config "github.com/ryanadiputraa/spendr-backend/configs"
 	"github.com/ryanadiputraa/spendr-backend/pkg/jwt"
 )
 

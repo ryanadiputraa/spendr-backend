@@ -1,0 +1,16 @@
+server:
+  port: :8080
+
+postgres:
+  host: localhost
+  port: '5432'
+  user: postgres
+  password: postgres
+  db_name: spendr
+  ssl_mode: disable
+
+jwt:
+  secret: nBZt9njFrrTAjbDkxCDsCzkIupgM8DsgKGQ06DUgeQIGDDboFa
+  expires_in: 1h0m0s
+  refresh_secret: nBZt9njFrrTAjbDkxCDsCzkIupgM8DsgKGQ06DUgeQIGDDboFa
+  refresh_expires_in: 72h0m0s

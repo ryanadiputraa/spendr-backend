@@ -7,7 +7,7 @@ import (
 	_ "github.com/lib/pq"
 
 	"github.com/jmoiron/sqlx"
-	"github.com/ryanadiputraa/spendr-backend/config"
+	config "github.com/ryanadiputraa/spendr-backend/configs"
 )
 
 const (

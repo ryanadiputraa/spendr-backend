@@ -10,7 +10,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/labstack/echo/v4"
 	_echoMiddleware "github.com/labstack/echo/v4/middleware"
-	"github.com/ryanadiputraa/spendr-backend/config"
+	config "github.com/ryanadiputraa/spendr-backend/configs"
 
 	"github.com/ryanadiputraa/spendr-backend/pkg/logger"
 )
