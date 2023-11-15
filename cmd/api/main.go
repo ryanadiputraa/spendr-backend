@@ -13,7 +13,7 @@ func main() {
 		panic(err)
 	}
 
-	config, err := config.LoadConfig("yml", "./config/config.yml")
+	config, err := config.LoadConfig("yml", "./configs/config.yml")
 	if err != nil {
 		log.Fatal("load config: ", err)
 	}
