@@ -3,10 +3,15 @@ package server
 import (
 	_openAPIMiddleware "github.com/go-openapi/runtime/middleware"
 	"github.com/labstack/echo/v4"
-	"github.com/ryanadiputraa/spendr-backend/internal/auth"
-	"github.com/ryanadiputraa/spendr-backend/internal/expense"
+	_authHandler "github.com/ryanadiputraa/spendr-backend/internal/auth/handler"
+	_authService "github.com/ryanadiputraa/spendr-backend/internal/auth/service"
+	_expenseHandler "github.com/ryanadiputraa/spendr-backend/internal/expense/Handler"
+	_expenseRepository "github.com/ryanadiputraa/spendr-backend/internal/expense/repository"
+	_expenseService "github.com/ryanadiputraa/spendr-backend/internal/expense/service"
 	"github.com/ryanadiputraa/spendr-backend/internal/middleware"
-	"github.com/ryanadiputraa/spendr-backend/internal/user"
+	_userHandler "github.com/ryanadiputraa/spendr-backend/internal/user/handler"
+	_userRepository "github.com/ryanadiputraa/spendr-backend/internal/user/repository"
+	_userService "github.com/ryanadiputraa/spendr-backend/internal/user/service"
 	"github.com/ryanadiputraa/spendr-backend/pkg/jwt"
 	"github.com/ryanadiputraa/spendr-backend/pkg/validator"
 )
@@ -20,16 +25,16 @@ func (s *Server) setupHandlers() {
 	jwtService := jwt.NewJWTService()
 	authMiddleware := middleware.NewAuthMiddleware(s.config, jwtService)
 
-	userRepository := user.NewRepository(s.db)
-	userService := user.NewService(s.log, userRepository)
-	user.NewHandler(userGroup, userService, *authMiddleware)
+	userRepository := _userRepository.NewRepository(s.db)
+	userService := _userService.NewService(s.log, userRepository)
+	_userHandler.NewHandler(userGroup, userService, *authMiddleware)
 
-	authService := auth.NewService(s.log, validator, userRepository)
-	auth.NewHandler(authGroup, s.config, s.log, validator, authService, jwtService)
+	authService := _authService.NewService(s.log, validator, userRepository)
+	_authHandler.NewHandler(authGroup, s.config, s.log, validator, authService, jwtService)
 
-	expenseRepository := expense.NewRepository(s.db)
-	expenseService := expense.NewService(s.log, expenseRepository)
-	expense.NewHandler(expenseGroup, validator, expenseService, *authMiddleware)
+	expenseRepository := _expenseRepository.NewRepository(s.db)
+	expenseService := _expenseService.NewService(s.log, expenseRepository)
+	_expenseHandler.NewHandler(expenseGroup, validator, expenseService, *authMiddleware)
 
 	sh := _openAPIMiddleware.Redoc(_openAPIMiddleware.RedocOpts{
 		SpecURL: "/api/open-api/open-api.yml",
